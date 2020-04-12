@@ -10,6 +10,7 @@
 #include <AccelStepper.h>
 #include <Bounce2.h>
 #include <EEPROM.h>
+#include <TMCStepper.h>
 int addr = 0;
 
 // AccelStepper stepper; // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
@@ -17,9 +18,13 @@ int addr = 0;
 #define stepPin 7  // 5=x, 6=y, 7=z
 #define stepsPerRevolution 200
 #define motorInterfaceType 1
+#define CS_PIN           10 // Chip select
+#define R_SENSE 0.075f
 
+TMC5160Stepper driver = TMC5160Stepper(CS_PIN, R_SENSE);
 
-AccelStepper stepper = AccelStepper(motorInterfaceType, stepPin, dirPin);
+//AccelStepper stepper = AccelStepper(motorInterfaceType, stepPin, dirPin);
+AccelStepper stepper = AccelStepper(stepper.DRIVER, stepPin, dirPin);
 int motorSpeed;
 
   Bounce btnIncrease = Bounce();
@@ -31,6 +36,15 @@ int motorSpeed;
  int bRmode=0;
 void setup()
 {    
+    SPI.begin();
+    pinMode(CS_PIN, OUTPUT);
+    digitalWrite(CS_PIN, HIGH);
+    driver.begin();             // Initiate pins and registeries
+    driver.rms_current(300);    // Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
+    driver.en_pwm_mode(1);      // Enable extremely quiet stepping
+    //driver.pwm_autoscale(1);
+    driver.microsteps(32);
+    
   Serial.begin(9600);
   pinMode(stepPin, OUTPUT);
   pinMode(dirPin, OUTPUT);
@@ -110,6 +124,7 @@ void loop()
   }
   //stepper.run();
   stepper.setSpeed(motorSpeed);
+  //stepper.setSpeed(-10000);
   stepper.runSpeed();
 }
 
