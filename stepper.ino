@@ -25,7 +25,7 @@ TMC5160Stepper driver = TMC5160Stepper(CS_PIN, R_SENSE);
 
 //AccelStepper stepper = AccelStepper(motorInterfaceType, stepPin, dirPin);
 AccelStepper stepper = AccelStepper(stepper.DRIVER, stepPin, dirPin);
-int motorSpeed;
+long motorSpeed;
 
   Bounce btnIncrease = Bounce();
   Bounce btnDecrease = Bounce();
@@ -43,7 +43,7 @@ void setup()
     driver.rms_current(300);    // Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
     driver.en_pwm_mode(1);      // Enable extremely quiet stepping
     //driver.pwm_autoscale(1);
-    driver.microsteps(32);
+    driver.microsteps(8);
     
   Serial.begin(9600);
   pinMode(stepPin, OUTPUT);
@@ -91,15 +91,39 @@ void loop()
     Serial.print("Decreasing motorSpeed:");
     Serial.println(motorSpeed);
   }
+  if(bDmode==45)
+  {
+    motorSpeed = motorSpeed - 25;
+    Serial.print("Decreasing motorSpeed 25x:");
+    Serial.println(motorSpeed);
+  }
+  if(bDmode==20)
+  {
+    motorSpeed = motorSpeed - 500;
+    Serial.print("Decreasing motorSpeed 100x:");
+    Serial.println(motorSpeed);
+  }
   if(bImode==25)
   {
     motorSpeed++;
     Serial.print("Increasing motorSpeed:");
     Serial.println(motorSpeed);
   }
+  if(bImode==45)
+  {
+    motorSpeed = motorSpeed + 25;
+    Serial.print("Increasing motorSpeed 25x:");
+    Serial.println(motorSpeed);
+  }
+  if(bImode==20)
+  {
+    motorSpeed = motorSpeed + 500;
+    Serial.print("Increasing motorSpeed 100x:");
+    Serial.println(motorSpeed);
+  }
   if(bRmode==25)
   {
-    motorSpeed=-250;
+    motorSpeed=-196; //-250;
   }
   if(bRmode==20)
   {
@@ -123,7 +147,7 @@ void loop()
     Serial.println(bRmode);
   }
   //stepper.run();
-  stepper.setSpeed(motorSpeed);
+  stepper.setSpeed(motorSpeed/4.0);
   //stepper.setSpeed(-10000);
   stepper.runSpeed();
 }
